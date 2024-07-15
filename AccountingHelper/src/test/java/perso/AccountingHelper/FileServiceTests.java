@@ -27,18 +27,23 @@ public class FileServiceTests {
 		String before = fileService.getFile("1lineTestFile.txt").getContent();
 		fileService.modifyFile("testModify", "1lineTestFile.txt");
 		assertNotEquals(before, fileService.getFile("1lineTestFile.txt").getContent());
+		
 		fileService.modifyFile(before, "1lineTestFile.txt");
 	}
 	
 	@Test
 	public void saveFile() {
 		fileService.loadFile("src/test/resources/fileServiceTestFiles/1lineTestFile.txt");
-		String before = fileService.getFile("1lineTestFile.txt").getContent();
-		fileService.modifyFile("testSaveFile", "1lineTestFile.txt");
-		boolean result = fileService.saveFile("1lineTestFile.txt");
-		//TODO : && check newfilevalue != before need to reload file
-		assertTrue(result);
-		//TODO: set value of testFile to before
+		String fileName = "1lineTestFile.txt";
+		String before = fileService.getFile(fileName).getContent();
+		fileService.modifyFile("testSaveFile", fileName);
+		fileService.saveFile(fileName);
+		fileService.loadFile("src/test/resources/fileServiceTestFiles/1lineTestFile.txt");
+		assertNotEquals(before,fileService.getFile(fileName).getContent());
+		
+		System.out.println("test");
+		fileService.modifyFile("Hello  world!", fileName);
+		fileService.saveFile(fileName);
 	}
 
 }

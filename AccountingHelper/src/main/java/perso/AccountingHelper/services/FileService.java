@@ -21,23 +21,30 @@ public class FileService {
 	
 	/*
 	 * parameters path to the file
-	 * return true if file succed to be loaded or already loaded
+	 * return true if load file
+	 * if file was already loaded loose unsaved change
 	 * else return false
 	 */
 	public Boolean loadFile(String filePath) {
 		Path path = new File(filePath).toPath();
-		if (this.isLoaded(path.getFileName().toString()))
-			return true;
-		InfoFile newFile = new InfoFile();
-		newFile.setContent("");
-		newFile.setPath(filePath);
-		newFile.setName(path.getFileName().toString());
+		boolean reload = this.isLoaded(path.getFileName().toString());
+		InfoFile loadingFile;
+		if (!reload) {
+			loadingFile = new InfoFile();
+			loadingFile.setContent("");
+			loadingFile.setPath(filePath);
+			loadingFile.setName(path.getFileName().toString());
+		}else {
+			loadingFile = this.getFile(path.getFileName().toString());
+			loadingFile.setContent("");
+		}
 		try (BufferedReader reader = Files.newBufferedReader(path)) {
 			String line;
 			while ((line = reader.readLine()) != null) {
-				newFile.addContent(line);
-			}			
-			loadedFiles.add(newFile);
+				loadingFile.addContent(line);
+			}
+			if (!reload)
+				loadedFiles.add(loadingFile);
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -84,7 +91,6 @@ public class FileService {
 			if (file.getName().equals(fileName)) {
 				try (FileWriter output = new FileWriter(file.getPath(), false)){
 					BufferedWriter writeFile = new BufferedWriter(output);
-					System.out.println(file.getContent());
 					writeFile.write(file.getContent());
 					writeFile.close();
 				} catch (Exception e) {
